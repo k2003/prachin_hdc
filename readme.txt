@@ -1,13 +1,3 @@
-  provinceCode: '30',
-  provinceName: 'นครราชสีมา',
-  healthRegion: '9',
-
-
-const PROVINCE_CODE = "30";
-const PROVINCE_NAME = "นครราชสีมา";
-const PROVINCE_NAME_EN = "Nakhon Ratchasima";
-const HEALTH_REGION = "เขตสุขภาพที่ 9";
-
 จังหวัด	อำเภอ  hospcode  name
 25	01	00015	สำนักงานสาธารณสุขจังหวัด	ปราจีนบุรี
 25	01	00203	สำนักงานสาธารณสุขอำเภอ/กิ่งอำเภอ	สำนักงานสาธารณสุขอำเภอเมืองปราจีนบุรี
