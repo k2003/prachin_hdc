@@ -1,0 +1,1777 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HDC OpenData | โรงพยาบาลบ้านสร้าง จังหวัดปราจีนบุรี</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700;800&family=Sarabun:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="districts_db.js"></script>
+<script src="hospitals_db.js"></script>
+<style>
+  :root {
+    /* ธีมแนวสว่าง (Modern Clinical & Health Informatics Light Theme) */
+    --bg: #f8fafc;
+    --panel: #ffffff;
+    --panel-subtle: #f1f5f9;
+    --panel-hover: #f8fafc;
+    
+    --border: #e2e8f0;
+    --border-subtle: #edf2f7;
+    --border-hover: #cbd5e1;
+    --border-focus: #38bdf8;
+    
+    --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05);
+    --shadow-md: 0 4px 14px -2px rgba(15, 23, 42, 0.07), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+    --shadow-lg: 0 12px 28px -4px rgba(15, 23, 42, 0.09), 0 4px 12px -2px rgba(15, 23, 42, 0.04);
+    
+    /* ข้อความขนาดใหญ่ คมชัด อ่านง่าย */
+    --text: #0f172a;        /* Slate 900 หัวข้อหลัก คมชัดสูง */
+    --text2: #334155;       /* Slate 700 เนื้อความหลัก */
+    --text3: #64748b;       /* Slate 500 ข้อมูลรอง / meta */
+    --text-muted: #94a3b8;  /* Slate 400 placeholder */
+
+    /* โทนสีเน้นสุขภาพ & การแพทย์สดใส */
+    --accent: #0284c7;      /* Sky Blue */
+    --accent-light: #e0f2fe;
+    --accent2: #059669;     /* Emerald Green */
+    --accent2-light: #dcfce7;
+    --accent3: #ea580c;     /* Warm Amber/Orange */
+    --accent3-light: #ffedd5;
+    --accent4: #7c3aed;     /* Indigo Purple */
+    --accent4-light: #f3e8ff;
+
+    --success: #16a34a;
+    --success-light: #dcfce7;
+    --warning: #d97706;
+    --warning-light: #fef3c7;
+    --danger: #dc2626;
+    --danger-light: #fee2e2;
+
+    --font: 'Sarabun', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-heading: 'Prompt', 'Sarabun', sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(14, 165, 233, 0.05) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(16, 185, 129, 0.04) 0px, transparent 50%),
+      radial-gradient(at 50% 100%, rgba(124, 58, 237, 0.03) 0px, transparent 50%);
+    color: var(--text2);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ===== HEADER ===== */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 28px;
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .logo-icon {
+    width: 46px; height: 46px;
+    background: linear-gradient(135deg, #0284c7 0%, #10b981 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+    flex-shrink: 0;
+  }
+
+  .logo-text h1 {
+    font-family: var(--font-heading);
+    font-size: 21px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+
+  .logo-text .sub-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    background: var(--accent-light);
+    padding: 2px 10px;
+    border-radius: 20px;
+    margin-top: 3px;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .year-select {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-family: var(--font-heading);
+    font-size: 14.5px;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s;
+  }
+
+  .year-select:hover { border-color: var(--accent); }
+  .year-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15); }
+
+  .status-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #15803d;
+    background: #f0fdf4;
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 1px solid #bbf7d0;
+  }
+
+  .status-dot {
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(0.85); }
+  }
+
+  /* ===== MAIN LAYOUT ===== */
+  .main-layout {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    grid-template-rows: auto 1fr;
+    min-height: calc(100vh - 72px);
+  }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar {
+    grid-row: 1 / 3;
+    background: #ffffff;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 1px 0 8px rgba(15, 23, 42, 0.02);
+  }
+
+  .sidebar-tabs {
+    display: flex;
+    background: #f8fafc;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .sidebar-tab {
+    flex: 1;
+    padding: 14px 10px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text3);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .sidebar-tab svg { flex-shrink: 0; }
+
+  .sidebar-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    background: #ffffff;
+  }
+
+  .sidebar-tab:hover:not(.active) { color: var(--text); background: rgba(0,0,0,0.02); }
+
+  .sidebar-content { flex: 1; overflow-y: auto; padding: 20px; }
+  .sidebar-content::-webkit-scrollbar { width: 5px; }
+  .sidebar-content::-webkit-scrollbar-track { background: transparent; }
+  .sidebar-content::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+
+  /* ===== MAP SECTION ===== */
+  .map-section {
+    padding: 4px 0 16px 0;
+  }
+
+  .map-title {
+    font-size: 13.5px;
+    font-weight: 700;
+    font-family: var(--font-heading);
+    color: var(--text);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .province-map {
+    width: 100%;
+    cursor: pointer;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    padding: 6px;
+    box-shadow: inset 0 1px 3px rgba(15, 23, 42, 0.03);
+  }
+
+  .district-path {
+    fill: #ffffff;
+    stroke: #cbd5e1;
+    stroke-width: 1.5;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    filter: drop-shadow(0 2px 4px rgba(15, 23, 42, 0.04));
+  }
+
+  .district-path:hover {
+    fill: #e0f2fe;
+    stroke: #0284c7;
+    filter: drop-shadow(0 4px 8px rgba(2, 132, 199, 0.15));
+  }
+
+  .district-path.active {
+    fill: #bae6fd;
+    stroke: #0284c7;
+    stroke-width: 2.5;
+    filter: drop-shadow(0 4px 12px rgba(2, 132, 199, 0.25));
+  }
+
+  .district-label {
+    font-size: 13px;
+    font-weight: 700;
+    fill: #0f172a;
+    text-anchor: middle;
+    pointer-events: none;
+    font-family: var(--font);
+  }
+
+  .district-sublabel {
+    font-size: 11px;
+    font-weight: 600;
+    fill: #0284c7;
+    text-anchor: middle;
+    pointer-events: none;
+    font-family: var(--mono);
+  }
+
+  /* ===== DISTRICT LIST ===== */
+  .district-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .district-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 11px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: #ffffff;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.18s ease;
+  }
+
+  .district-item:hover {
+    background: #f0f9ff;
+    border-color: #7dd3fc;
+    transform: translateX(3px);
+  }
+
+  .district-item.active {
+    background: #e0f2fe;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent);
+  }
+
+  .district-item-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .district-item-code {
+    font-size: 12px;
+    font-family: var(--mono);
+    font-weight: 600;
+    color: #0284c7;
+    background: #e0f2fe;
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
+
+  /* ===== KPI SEARCH ===== */
+  .search-box {
+    position: relative;
+    margin-bottom: 14px;
+  }
+
+  .search-input {
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 12px 14px 12px 42px;
+    border-radius: 10px;
+    font-family: var(--font);
+    font-size: 15px;
+    outline: none;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s;
+  }
+
+  .search-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+  }
+
+  .search-input::placeholder { color: var(--text-muted); }
+
+  .search-icon {
+    position: absolute;
+    left: 13px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text3);
+    display: flex;
+    align-items: center;
+  }
+
+  .kpi-count {
+    font-size: 13px;
+    color: var(--text3);
+    font-family: var(--font);
+    margin-bottom: 12px;
+    font-weight: 500;
+  }
+
+  .kpi-count span { color: var(--accent); font-weight: 700; font-family: var(--mono); }
+
+  /* ===== KPI LIST ===== */
+  .kpi-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: calc(100vh - 300px);
+    overflow-y: auto;
+  }
+
+  .kpi-list::-webkit-scrollbar { width: 4px; }
+  .kpi-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 2px; }
+
+  .kpi-item {
+    padding: 11px 13px;
+    border-radius: 9px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: #ffffff;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.18s ease;
+  }
+
+  .kpi-item:hover {
+    background: #f0fdf4;
+    border-color: #86efac;
+    transform: translateX(2px);
+  }
+
+  .kpi-item.active {
+    background: #dcfce7;
+    border-color: var(--accent2);
+    box-shadow: 0 0 0 1px var(--accent2);
+  }
+
+  .kpi-item-name {
+    font-size: 14.5px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.4;
+    margin-bottom: 6px;
+  }
+
+  .kpi-item-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .kpi-tag {
+    font-size: 11.5px;
+    font-family: var(--mono);
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 5px;
+    background: #f1f5f9;
+    color: var(--text3);
+  }
+
+  .kpi-tag.cat { background: var(--accent4-light); color: var(--accent4); }
+
+  /* ===== MAIN CONTENT ===== */
+  .content-area {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ===== BREADCRUMB ===== */
+  .breadcrumb {
+    padding: 14px 28px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14.5px;
+    color: var(--text3);
+    flex-shrink: 0;
+    background: #ffffff;
+  }
+
+  .breadcrumb-item { color: var(--text3); font-weight: 500; display: flex; align-items: center; gap: 6px; }
+  .breadcrumb-item.active { color: var(--accent); font-weight: 700; }
+  .breadcrumb-sep { color: #cbd5e1; font-weight: 600; }
+
+  /* ===== DASHBOARD GRID ===== */
+  .dashboard-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 28px;
+  }
+
+  .dashboard-scroll::-webkit-scrollbar { width: 6px; }
+  .dashboard-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+
+  /* ===== STAT CARDS ===== */
+  .stat-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease;
+  }
+
+  .stat-card:hover {
+    border-color: var(--card-color, var(--accent));
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: var(--card-color, var(--accent));
+  }
+
+  .stat-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .stat-card-icon-wrap {
+    width: 46px; height: 46px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .stat-badge-pill {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 12px;
+    font-family: var(--font-heading);
+  }
+
+  .stat-card-value {
+    font-family: var(--font-heading);
+    font-size: 34px;
+    font-weight: 800;
+    color: var(--card-color, var(--accent));
+    line-height: 1.1;
+    margin-bottom: 4px;
+  }
+
+  .stat-card-label {
+    font-size: 15px;
+    color: var(--text2);
+    font-weight: 600;
+  }
+
+  .stat-card-sub {
+    font-size: 13px;
+    color: var(--text3);
+    margin-top: 5px;
+    font-weight: 500;
+  }
+
+  /* ===== CHARTS ROW ===== */
+  .charts-row {
+    display: grid;
+    grid-template-columns: 1.8fr 1.2fr;
+    gap: 18px;
+    margin-bottom: 24px;
+  }
+
+  .chart-panel {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    position: relative;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .panel-title {
+    font-family: var(--font-heading);
+    font-size: 16.5px;
+    font-weight: 700;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .panel-badge {
+    font-size: 12px;
+    font-family: var(--font-heading);
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 12px;
+    background: var(--accent-light);
+    color: var(--accent);
+    border: 1px solid #bae6fd;
+  }
+
+  .chart-wrap {
+    position: relative;
+    height: 220px;
+  }
+
+  /* ===== HOSPITAL TABLE ===== */
+  .table-panel {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .table-header {
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    background: #ffffff;
+  }
+
+  .table-title {
+    font-family: var(--font-heading);
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .table-filter {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    font-size: 13.5px;
+    font-weight: 600;
+    font-family: var(--font);
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: #ffffff;
+    color: var(--text3);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .filter-btn.active, .filter-btn:hover {
+    background: var(--accent-light);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead th {
+    padding: 13px 20px;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text3);
+    letter-spacing: 0.04em;
+    border-bottom: 1px solid var(--border);
+    background: #f8fafc;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid #f1f5f9;
+    transition: background 0.15s;
+  }
+
+  tbody tr:hover { background: #f8fafc; }
+  tbody tr:last-child { border-bottom: none; }
+
+  tbody td {
+    padding: 14px 20px;
+    font-size: 14.5px;
+    color: var(--text2);
+    vertical-align: middle;
+  }
+
+  .td-name {
+    color: var(--text);
+    font-weight: 600;
+    font-size: 15px;
+  }
+
+  .progress-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .progress-bar {
+    flex: 1;
+    height: 7px;
+    background: #e2e8f0;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.8s ease;
+  }
+
+  .progress-pct {
+    font-size: 14px;
+    font-family: var(--mono);
+    font-weight: 700;
+    min-width: 44px;
+    text-align: right;
+  }
+
+  .type-badge {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 6px;
+    display: inline-block;
+  }
+
+  .type-badge.รพศ { background: #e0f2fe; color: #0284c7; border: 1px solid #7dd3fc; }
+  .type-badge.รพท { background: #e0f2fe; color: #0284c7; border: 1px solid #7dd3fc; }
+  .type-badge.รพช { background: #f3e8ff; color: #7c3aed; border: 1px solid #d8b4fe; }
+  .type-badge.รพสต { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+  .type-badge.ศบส { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+  .type-badge.ศสม { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+  .type-badge.สสอ { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+  .type-badge.สสจ { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+
+  /* ===== KPI DETAIL PANEL ===== */
+  .kpi-detail-panel {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 26px;
+    margin-bottom: 22px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .kpi-detail-title {
+    font-family: var(--font-heading);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+
+  .kpi-detail-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .kpi-meta-item {
+    font-size: 14px;
+    color: var(--text3);
+    font-weight: 500;
+  }
+
+  .kpi-meta-item span {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  /* ===== API STATUS ===== */
+  .api-status-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .api-status-card {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .api-status-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .api-status-dot.ok { background: var(--success); box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15); }
+  .api-status-dot.warn { background: var(--warning); box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15); }
+  .api-status-dot.err { background: var(--danger); box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15); }
+
+  .api-status-info { flex: 1; min-width: 0; }
+  .api-status-name { font-size: 14px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .api-status-time { font-size: 12px; font-family: var(--mono); color: var(--text3); margin-top: 2px; }
+
+  /* ===== LOADING OVERLAY ===== */
+  .loading-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    flex-direction: column;
+    gap: 16px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+
+  .loading-overlay.show { opacity: 1; pointer-events: all; }
+
+  .loading-spinner {
+    width: 48px; height: 48px;
+    border: 4px solid #e2e8f0;
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-text {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: 0.02em;
+  }
+
+  /* ===== TOAST ===== */
+  .toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 500;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .toast {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    box-shadow: 0 10px 25px -4px rgba(15, 23, 42, 0.12);
+    animation: slideIn 0.3s ease;
+    max-width: 320px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .toast.success { border-left: 4px solid var(--success); }
+  .toast.error { border-left: 4px solid var(--danger); }
+
+  @keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  /* ===== EMPTY STATE ===== */
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    color: var(--text3);
+    text-align: center;
+    gap: 10px;
+  }
+
+  .empty-state-icon { font-size: 44px; opacity: 0.5; }
+  .empty-state-text { font-size: 15px; font-weight: 500; }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 1100px) {
+    .stat-cards { grid-template-columns: repeat(2, 1fr); }
+    .charts-row { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 768px) {
+    .main-layout { grid-template-columns: 1fr; }
+    .sidebar { grid-row: auto; max-height: 400px; }
+    .stat-cards { grid-template-columns: 1fr; }
+    .api-status-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-left">
+    <div class="logo-icon">
+      <!-- Medical Hospital Cross Icon -->
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 21h18"/>
+        <path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/>
+        <path d="M9 10h6"/>
+        <path d="M12 7v6"/>
+        <path d="M10 17h4v4h-4z"/>
+      </svg>
+    </div>
+    <div class="logo-text">
+      <h1>HDC OpenData | ปราจีนบุรี</h1>
+      <span class="sub-badge">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+        MOPH OPEN DATA PORTAL · เขตสุขภาพที่ 6
+      </span>
+    </div>
+  </div>
+  <div class="header-right">
+    <select class="year-select" id="yearSelect">
+      <option value="2568">ปีงบ 2568</option>
+      <option value="2567">ปีงบ 2567</option>
+      <option value="2566">ปีงบ 2566</option>
+    </select>
+    <div class="status-badge">
+      <div class="status-dot"></div>
+      <span id="statusText">เชื่อมต่อระบบ HDC แล้ว</span>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN LAYOUT -->
+<div class="main-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-tabs">
+      <div class="sidebar-tab active" data-tab="map" onclick="switchTab('map')">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/>
+          <line x1="9" x2="9" y1="3" y2="18"/>
+          <line x1="15" x2="15" y1="6" y2="21"/>
+        </svg>
+        <span>แผนที่อำเภอ</span>
+      </div>
+      <div class="sidebar-tab" data-tab="kpi" onclick="switchTab('kpi')">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" x2="18" y1="20" y2="10"/>
+          <line x1="12" x2="12" y1="20" y2="4"/>
+          <line x1="6" x2="6" y1="20" y2="14"/>
+        </svg>
+        <span>ตัวชี้วัด KPI</span>
+      </div>
+      <div class="sidebar-tab" data-tab="api" onclick="switchTab('api')">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+        <span>สถานะ API</span>
+      </div>
+    </div>
+
+    <!-- MAP TAB -->
+    <div class="sidebar-content" id="tab-map">
+      <div class="map-section">
+        <div class="map-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+          จังหวัดปราจีนบุรี · 7 อำเภอ
+        </div>
+        <!-- SVG Map - แผนที่ 7 อำเภอ จังหวัดปราจีนบุรี -->
+        <svg class="province-map" viewBox="0 0 288 220" id="provinceMap">
+          <!-- Row 1 (North): เมืองปราจีนบุรี, ประจันตคาม, นาดี -->
+          <rect class="district-path" data-code="2501" x="10" y="10" width="84" height="58" rx="8" onclick="selectDistrict('2501')"/>
+          <text class="district-label" x="52" y="38">เมืองปราจีนบุรี</text>
+          <text class="district-sublabel" x="52" y="54">2501</text>
+
+          <rect class="district-path" data-code="2507" x="102" y="10" width="84" height="58" rx="8" onclick="selectDistrict('2507')"/>
+          <text class="district-label" x="144" y="38">ประจันตคาม</text>
+          <text class="district-sublabel" x="144" y="54">2507</text>
+
+          <rect class="district-path" data-code="2503" x="194" y="10" width="84" height="58" rx="8" onclick="selectDistrict('2503')"/>
+          <text class="district-label" x="236" y="38">นาดี</text>
+          <text class="district-sublabel" x="236" y="54">2503</text>
+
+          <!-- Row 2 (Middle): บ้านสร้าง, ศรีมหาโพธิ, กบินทร์บุรี -->
+          <rect class="district-path" data-code="2506" x="10" y="76" width="84" height="58" rx="8" onclick="selectDistrict('2506')"/>
+          <text class="district-label" x="52" y="104">บ้านสร้าง</text>
+          <text class="district-sublabel" x="52" y="120">2506</text>
+
+          <rect class="district-path" data-code="2508" x="102" y="76" width="84" height="58" rx="8" onclick="selectDistrict('2508')"/>
+          <text class="district-label" x="144" y="104">ศรีมหาโพธิ</text>
+          <text class="district-sublabel" x="144" y="120">2508</text>
+
+          <rect class="district-path" data-code="2502" x="194" y="76" width="84" height="132" rx="8" onclick="selectDistrict('2502')"/>
+          <text class="district-label" x="236" y="136">กบินทร์บุรี</text>
+          <text class="district-sublabel" x="236" y="152">2502</text>
+
+          <!-- Row 3 (South): ศรีมโหสถ -->
+          <rect class="district-path" data-code="2509" x="10" y="142" width="176" height="66" rx="8" onclick="selectDistrict('2509')"/>
+          <text class="district-label" x="98" y="174">ศรีมโหสถ</text>
+          <text class="district-sublabel" x="98" y="190">2509</text>
+        </svg>
+      </div>
+
+      <div style="margin-top:12px">
+        <div class="map-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>
+          รายชื่ออำเภอทั้งหมด
+        </div>
+        <div class="district-list" id="districtList"></div>
+      </div>
+    </div>
+
+    <!-- KPI TAB -->
+    <div class="sidebar-content" id="tab-kpi" style="display:none">
+      <div class="search-box">
+        <span class="search-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" x2="16.65" y1="21" y2="16.65"/>
+          </svg>
+        </span>
+        <input type="text" class="search-input" id="kpiSearch" placeholder="ค้นหาชื่อตัวชี้วัด, รหัส..." oninput="filterKpis()">
+      </div>
+      <div class="kpi-count">แสดงผล <span>0</span> จาก <span>945</span> ตัวชี้วัด</div>
+      <div class="kpi-list" id="kpiList"></div>
+    </div>
+
+    <!-- API TAB -->
+    <div class="sidebar-content" id="tab-api" style="display:none">
+      <div class="map-title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect width="20" height="8" x="2" y="2" rx="2" ry="2"/>
+          <rect width="20" height="8" x="2" y="14" rx="2" ry="2"/>
+          <line x1="6" x2="6.01" y1="6" y2="6"/>
+          <line x1="6" x2="6.01" y1="18" y2="18"/>
+        </svg>
+        สถานะการเชื่อมต่อ API Endpoints
+      </div>
+      <div id="apiStatusList" style="display:flex; flex-direction:column; gap:8px;"></div>
+      <div style="margin-top:20px">
+        <div class="map-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></svg>
+          บันทึกการดึงข้อมูล (Fetch Log)
+        </div>
+        <div id="fetchLog" style="font-size:12px;font-family:var(--mono);color:var(--text3);line-height:1.8;background:#f8fafc;padding:12px;border-radius:10px;border:1px solid var(--border)"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content-area">
+    <div class="breadcrumb">
+      <span class="breadcrumb-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+        ปราจีนบุรี
+      </span>
+      <span class="breadcrumb-sep">›</span>
+      <span class="breadcrumb-item active" id="breadcrumbDistrict">ภาพรวมจังหวัด</span>
+      <span class="breadcrumb-sep">›</span>
+      <span class="breadcrumb-item active" id="breadcrumbKpi">ทุกตัวชี้วัด</span>
+    </div>
+
+    <div class="dashboard-scroll">
+
+      <!-- STAT CARDS -->
+      <div class="stat-cards" id="statCards">
+        <!-- Card 1: หน่วยบริการ -->
+        <div class="stat-card" style="--card-color: #0284c7;">
+          <div class="stat-card-header">
+            <div class="stat-card-icon-wrap" style="background: #e0f2fe; color: #0284c7;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 21h18"/>
+                <path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/>
+                <path d="M9 10h6"/>
+                <path d="M12 7v6"/>
+                <path d="M10 17h4v4h-4z"/>
+              </svg>
+            </div>
+            <span class="stat-badge-pill" style="background:#e0f2fe; color:#0284c7;">7 อำเภอ</span>
+          </div>
+          <div class="stat-card-value" id="statHospCount">116</div>
+          <div class="stat-card-label">หน่วยบริการสุขภาพทั้งหมด</div>
+          <div class="stat-card-sub">รพศ. 1 · รพช. 6 · รพ.สต. 93+ แห่ง</div>
+        </div>
+
+        <!-- Card 2: ตัวชี้วัด -->
+        <div class="stat-card" style="--card-color: #7c3aed;">
+          <div class="stat-card-header">
+            <div class="stat-card-icon-wrap" style="background: #f3e8ff; color: #7c3aed;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <circle cx="12" cy="12" r="6"/>
+                <circle cx="12" cy="12" r="2"/>
+              </svg>
+            </div>
+            <span class="stat-badge-pill" style="background:#f3e8ff; color:#7c3aed;">เกณฑ์ สธ.</span>
+          </div>
+          <div class="stat-card-value" id="statKpiCount">945</div>
+          <div class="stat-card-label">ตัวชี้วัดกระทรวงสาธารณสุข</div>
+          <div class="stat-card-sub">MOPH Standard KPIs 2568</div>
+        </div>
+
+        <!-- Card 3: ผ่านเกณฑ์ -->
+        <div class="stat-card" style="--card-color: #16a34a;">
+          <div class="stat-card-header">
+            <div class="stat-card-icon-wrap" style="background: #dcfce7; color: #16a34a;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/>
+                <path d="m9 12 2 2 4-4"/>
+              </svg>
+            </div>
+            <span class="stat-badge-pill" style="background:#dcfce7; color:#15803d;">ภาพรวม</span>
+          </div>
+          <div class="stat-card-value" id="statPassRate">--</div>
+          <div class="stat-card-label">อัตราผ่านเกณฑ์เฉลี่ย</div>
+          <div class="stat-card-sub" id="statPassSub">กำลังโหลดข้อมูล...</div>
+        </div>
+
+        <!-- Card 4: ปีงบประมาณ -->
+        <div class="stat-card" style="--card-color: #ea580c;">
+          <div class="stat-card-header">
+            <div class="stat-card-icon-wrap" style="background: #ffedd5; color: #ea580c;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="18" height="18" x="3" y="4" rx="2"/>
+                <line x1="16" x2="16" y1="2" y2="6"/>
+                <line x1="8" x2="8" y1="2" y2="6"/>
+                <line x1="3" x2="21" y1="10" y2="10"/>
+              </svg>
+            </div>
+            <span class="stat-badge-pill" style="background:#ffedd5; color:#c2410c;">ล่าสุด</span>
+          </div>
+          <div class="stat-card-value" id="statYear">2568</div>
+          <div class="stat-card-label">ปีงบประมาณที่ประมวลผล</div>
+          <div class="stat-card-sub" id="statUpdated">--</div>
+        </div>
+      </div>
+
+      <!-- KPI DETAIL (show when KPI selected) -->
+      <div class="kpi-detail-panel" id="kpiDetailPanel" style="display:none">
+        <div class="kpi-detail-title" id="kpiDetailTitle">--</div>
+        <div class="kpi-detail-meta">
+          <div class="kpi-meta-item">หมวดหมู่: <span id="kpiDetailCat">--</span></div>
+          <div class="kpi-meta-item">รหัสตัวชี้วัด: <span id="kpiDetailCode">--</span></div>
+          <div class="kpi-meta-item">เป้าหมายมาตรฐาน: <span id="kpiDetailTarget">--</span></div>
+        </div>
+      </div>
+
+      <!-- CHARTS -->
+      <div class="charts-row" id="chartsRow">
+        <div class="chart-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" x2="18" y1="20" y2="10"/>
+                <line x1="12" x2="12" y1="20" y2="4"/>
+                <line x1="6" x2="6" y1="20" y2="14"/>
+              </svg>
+              ผลงานรายอำเภอ (7 อำเภอ จังหวัดปราจีนบุรี)
+            </div>
+            <div class="panel-badge" id="chartBadge">ปีงบ 2568</div>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="districtBarChart"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 2a10 10 0 0 1 10 10h-10z"/>
+              </svg>
+              สัดส่วนผลงานการผ่านเกณฑ์
+            </div>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="donutChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- HOSPITAL TABLE -->
+      <div class="table-panel" id="hospitalTablePanel">
+        <div class="table-header">
+          <div class="table-title" id="tableTitle">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 21h18"/>
+              <path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/>
+              <path d="M9 10h6"/>
+              <path d="M12 7v6"/>
+            </svg>
+            ข้อมูลหน่วยบริการสาธารณสุข — <span id="tableDistrictName">ภาพรวมจังหวัด</span>
+          </div>
+          <div class="table-filter">
+            <button class="filter-btn active" onclick="filterTable('all',this)">ทั้งหมด</button>
+            <button class="filter-btn" onclick="filterTable('รพศ./รพท.',this)">รพศ. (อภัยภูเบศร)</button>
+            <button class="filter-btn" onclick="filterTable('รพช.',this)">รพช. (6 แห่ง)</button>
+            <button class="filter-btn" onclick="filterTable('รพ.สต.',this)">รพ.สต. (93 แห่ง)</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead>
+              <tr>
+                <th>ชื่อหน่วยบริการ</th>
+                <th>รหัสหน่วยบริการ (hospcode)</th>
+                <th>ประเภท</th>
+                <th>อำเภอ</th>
+                <th>ผลงานจริง / เป้าหมาย</th>
+                <th>ร้อยละ</th>
+              </tr>
+            </thead>
+            <tbody id="hospitalTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- API STATUS -->
+      <div id="apiStatusGrid" class="api-status-grid" style="display:none"></div>
+
+    </div>
+  </main>
+</div>
+
+<!-- LOADING OVERLAY -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text" id="loadingText">กำลังประมวลผลข้อมูล HDC...</div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// =============================================
+// STATE
+// =============================================
+const state = {
+  selectedDistrict: null,
+  selectedKpi: null,
+  selectedYear: '2568',
+  tableFilter: 'all',
+  kpiData: [],
+  fetchHistory: [],
+  cache: {}
+};
+
+// =============================================
+// KPI CATALOG (ตัวอย่าง 50 รายการ — แทนที่ด้วย API จริง)
+// =============================================
+const KPI_CATALOG = [
+  { code: 'QOF-DM-01', name: 'ผู้ป่วยเบาหวานควบคุมระดับน้ำตาลได้ดี (HbA1c < 7%)', cat: 'โรคไม่ติดต่อ', target: '>= 40%' },
+  { code: 'QOF-DM-02', name: 'ผู้ป่วยเบาหวานได้รับการตรวจ HbA1c', cat: 'โรคไม่ติดต่อ', target: '>= 60%' },
+  { code: 'QOF-DM-03', name: 'ผู้ป่วยเบาหวานได้รับการตรวจตา', cat: 'โรคไม่ติดต่อ', target: '>= 60%' },
+  { code: 'QOF-DM-04', name: 'ผู้ป่วยเบาหวานได้รับการตรวจเท้า', cat: 'โรคไม่ติดต่อ', target: '>= 60%' },
+  { code: 'QOF-HT-01', name: 'ผู้ป่วยความดันโลหิตสูงควบคุมได้ (BP < 140/90)', cat: 'โรคไม่ติดต่อ', target: '>= 50%' },
+  { code: 'QOF-HT-02', name: 'ผู้ป่วยความดันโลหิตสูงได้รับยาอย่างต่อเนื่อง', cat: 'โรคไม่ติดต่อ', target: '>= 80%' },
+  { code: 'MCH-01', name: 'หญิงตั้งครรภ์ฝากครรภ์ก่อน 12 สัปดาห์', cat: 'อนามัยแม่และเด็ก', target: '>= 75%' },
+  { code: 'MCH-02', name: 'หญิงตั้งครรภ์ฝากครรภ์ครบ 5 ครั้งตามเกณฑ์', cat: 'อนามัยแม่และเด็ก', target: '>= 70%' },
+  { code: 'MCH-03', name: 'ทารกแรกเกิดน้ำหนักน้อยกว่า 2,500 กรัม', cat: 'อนามัยแม่และเด็ก', target: '<= 7%' },
+  { code: 'MCH-04', name: 'เด็ก 0-5 ปี ได้รับวัคซีน EPI ครบตามเกณฑ์', cat: 'อนามัยแม่และเด็ก', target: '>= 90%' },
+  { code: 'MCH-05', name: 'เด็ก 0-5 ปี ส่วนสูงและน้ำหนักอยู่ในเกณฑ์ปกติ', cat: 'อนามัยแม่และเด็ก', target: '>= 85%' },
+  { code: 'CAN-01', name: 'หญิงอายุ 30-70 ปี ได้รับการตรวจมะเร็งปากมดลูก', cat: 'มะเร็ง', target: '>= 80%' },
+  { code: 'CAN-02', name: 'หญิงอายุ 30-70 ปี ได้รับการตรวจมะเร็งเต้านม', cat: 'มะเร็ง', target: '>= 80%' },
+  { code: 'CAN-03', name: 'ผู้ป่วยมะเร็งได้รับการรักษาตามมาตรฐาน', cat: 'มะเร็ง', target: '>= 90%' },
+  { code: 'TB-01', name: 'อัตราการค้นพบผู้ป่วยวัณโรค', cat: 'วัณโรค', target: '>= 70%' },
+  { code: 'TB-02', name: 'ผู้ป่วยวัณโรครักษาหายขาด (Treatment Success)', cat: 'วัณโรค', target: '>= 88%' },
+  { code: 'AIDS-01', name: 'ผู้ติดเชื้อ HIV ได้รับยา ARV', cat: 'HIV/AIDS', target: '>= 90%' },
+  { code: 'AIDS-02', name: 'ผู้ป่วย AIDS Viral Load Suppression', cat: 'HIV/AIDS', target: '>= 95%' },
+  { code: 'ELD-01', name: 'ผู้สูงอายุได้รับการคัดกรองสุขภาพ', cat: 'ผู้สูงอายุ', target: '>= 85%' },
+  { code: 'ELD-02', name: 'ผู้สูงอายุได้รับวัคซีนไข้หวัดใหญ่', cat: 'ผู้สูงอายุ', target: '>= 80%' },
+  { code: 'ELD-03', name: 'ผู้สูงอายุที่มีภาวะพึ่งพิงได้รับ LTC', cat: 'ผู้สูงอายุ', target: '>= 90%' },
+  { code: 'MH-01', name: 'ผู้ป่วยโรคซึมเศร้าได้รับการรักษา', cat: 'สุขภาพจิต', target: '>= 70%' },
+  { code: 'MH-02', name: 'ผู้ป่วยจิตเวชไม่กลับซ้ำใน 28 วัน', cat: 'สุขภาพจิต', target: '>= 85%' },
+  { code: 'DIS-01', name: 'ผู้พิการได้รับการฟื้นฟูสมรรถภาพ', cat: 'คนพิการ', target: '>= 70%' },
+  { code: 'EMS-01', name: 'ผู้ป่วย Stroke ได้รับ tPA ภายใน 4.5 ชม.', cat: 'การแพทย์ฉุกเฉิน', target: '>= 20%' },
+  { code: 'EMS-02', name: 'ผู้ป่วย STEMI ได้รับ Primary PCI', cat: 'การแพทย์ฉุกเฉิน', target: '>= 50%' },
+  { code: 'PCC-01', name: 'ประชาชนลงทะเบียนกับ PCC', cat: 'ระบบสุขภาพปฐมภูมิ', target: '>= 80%' },
+  { code: 'PCC-02', name: 'ผู้ป่วยโรคเรื้อรังอยู่ในระบบ PCC', cat: 'ระบบสุขภาพปฐมภูมิ', target: '>= 90%' },
+  { code: 'ENV-01', name: 'ครัวเรือนมีส้วมถูกสุขลักษณะ', cat: 'อนามัยสิ่งแวดล้อม', target: '>= 98%' },
+  { code: 'ENV-02', name: 'น้ำดื่มผ่านมาตรฐานทางเคมีและชีวภาพ', cat: 'อนามัยสิ่งแวดล้อม', target: '>= 95%' },
+  { code: 'NCD-SCREEN-01', name: 'ประชากร 35 ปีขึ้นไปได้รับการคัดกรอง DM', cat: 'คัดกรองโรค', target: '>= 90%' },
+  { code: 'NCD-SCREEN-02', name: 'ประชากร 35 ปีขึ้นไปได้รับการคัดกรอง HT', cat: 'คัดกรองโรค', target: '>= 90%' },
+  { code: 'NCD-SCREEN-03', name: 'ประชากรได้รับการคัดกรองความเสี่ยง CVD', cat: 'คัดกรองโรค', target: '>= 80%' },
+  { code: 'HAI-01', name: 'อัตราการติดเชื้อในโรงพยาบาล (HAI)', cat: 'คุณภาพบริการ', target: '<= 3/1000' },
+  { code: 'QUAL-01', name: 'อัตราผู้ป่วยนอกที่ได้รับยาปฏิชีวนะในโรคติดเชื้อเฉียบพลันระบบหายใจส่วนบน', cat: 'คุณภาพบริการ', target: '<= 20%' },
+  { code: 'QUAL-02', name: 'อัตราผู้ป่วยในเสียชีวิตที่ไม่ควรตาย (preventable death)', cat: 'คุณภาพบริการ', target: '<= 0.5%' },
+  { code: 'DRUG-01', name: 'ผู้ป่วยยาเสพติดบำบัดครบตามเกณฑ์ (จิตสังคม)', cat: 'ยาเสพติด', target: '>= 80%' },
+  { code: 'DRUG-02', name: 'ผู้ป่วยยาเสพติดไม่กลับมาเสพซ้ำ 3 เดือน', cat: 'ยาเสพติด', target: '>= 70%' },
+  { code: 'CHD-01', name: 'เด็กนักเรียนได้รับการตรวจสุขภาพ', cat: 'สุขภาพเด็กวัยเรียน', target: '>= 90%' },
+  { code: 'CHD-02', name: 'นักเรียนมีสายตาปกติหรือได้รับการแก้ไข', cat: 'สุขภาพเด็กวัยเรียน', target: '>= 90%' },
+  { code: 'FOOD-01', name: 'ร้านอาหารผ่านเกณฑ์ Clean Food Good Taste', cat: 'ความปลอดภัยอาหาร', target: '>= 80%' },
+  { code: 'FOOD-02', name: 'ผัก/ผลไม้ปลอดสารพิษจำหน่ายในตลาด', cat: 'ความปลอดภัยอาหาร', target: '>= 80%' },
+  { code: 'ACC-01', name: 'อัตราการเสียชีวิตจากอุบัติเหตุทางถนน', cat: 'อุบัติเหตุ', target: '<= 20/แสน' },
+  { code: 'ACC-02', name: 'ผู้บาดเจ็บจากอุบัติเหตุทางถนนลดลง', cat: 'อุบัติเหตุ', target: 'ลดลง >= 5%' },
+  { code: 'DEN-01', name: 'เด็ก 3 ปี ปลอดฟันผุ', cat: 'ทันตสาธารณสุข', target: '>= 60%' },
+  { code: 'DEN-02', name: 'เด็ก 12 ปี ไม่มีฟันผุ (caries free)', cat: 'ทันตสาธารณสุข', target: '>= 52%' },
+  { code: 'DEN-03', name: 'ผู้สูงอายุ 60 ปีขึ้นไป มีฟันใช้งานได้ >= 20 ซี่', cat: 'ทันตสาธารณสุข', target: '>= 60%' },
+  { code: 'REHAB-01', name: 'ผู้ป่วย Stroke ได้รับการฟื้นฟูต่อเนื่อง 6 เดือน', cat: 'ฟื้นฟูสมรรถภาพ', target: '>= 70%' },
+  { code: 'REHAB-02', name: 'ผู้ป่วย TBI ได้รับกายภาพบำบัดตามแผน', cat: 'ฟื้นฟูสมรรถภาพ', target: '>= 75%' },
+  { code: 'TRAD-01', name: 'ผู้ป่วยได้รับบริการแพทย์แผนไทย', cat: 'การแพทย์แผนไทย', target: '>= 30%' },
+];
+
+// =============================================
+// CHART INSTANCES
+// =============================================
+let barChart = null;
+let donutChart = null;
+
+// =============================================
+// INIT
+// =============================================
+document.addEventListener('DOMContentLoaded', () => {
+  renderDistrictList();
+  renderKpiList();
+  initCharts();
+  renderHospitalTable();
+  renderApiStatus();
+  updateStats();
+  startSilentRefresh();
+
+  document.getElementById('yearSelect').addEventListener('change', (e) => {
+    state.selectedYear = e.target.value;
+    document.getElementById('statYear').textContent = e.target.value;
+    document.getElementById('chartBadge').textContent = `ปีงบ ${e.target.value}`;
+    showLoading('กำลังโหลดข้อมูลปีงบประมาณ ' + e.target.value + '...');
+    setTimeout(() => {
+      refreshAllData();
+      hideLoading();
+      showToast('อัปเดตข้อมูลปีงบ ' + e.target.value + ' เรียบร้อย', 'success');
+    }, 900);
+  });
+});
+
+// =============================================
+// TAB SWITCHING
+// =============================================
+function switchTab(tab) {
+  ['map','kpi','api'].forEach(t => {
+    document.getElementById(`tab-${t}`).style.display = t === tab ? 'block' : 'none';
+    document.querySelector(`[data-tab="${t}"]`).classList.toggle('active', t === tab);
+  });
+  if (tab === 'api') {
+    document.getElementById('apiStatusGrid').style.display = 'grid';
+  } else {
+    document.getElementById('apiStatusGrid').style.display = 'none';
+  }
+}
+
+// =============================================
+// DISTRICT
+// =============================================
+function renderDistrictList() {
+  const list = document.getElementById('districtList');
+  list.innerHTML = getAllDistricts().map(d => `
+    <div class="district-item ${state.selectedDistrict === d.code ? 'active' : ''}"
+         onclick="selectDistrict('${d.code}')">
+      <span class="district-item-name">${d.name}</span>
+      <span class="district-item-code">${d.code}</span>
+    </div>
+  `).join('');
+}
+
+function selectDistrict(code) {
+  state.selectedDistrict = state.selectedDistrict === code ? null : code;
+  // Update SVG
+  document.querySelectorAll('.district-path').forEach(el => {
+    el.classList.toggle('active', el.dataset.code === state.selectedDistrict);
+  });
+  // Update list
+  document.querySelectorAll('.district-item').forEach(el => {
+    const isActive = el.querySelector('.district-item-code')?.textContent === state.selectedDistrict;
+    el.classList.toggle('active', isActive);
+  });
+
+  const name = state.selectedDistrict ? getDistrictName(state.selectedDistrict) : 'ภาพรวมจังหวัด';
+  document.getElementById('breadcrumbDistrict').textContent = name;
+  document.getElementById('tableDistrictName').textContent = name;
+  renderHospitalTable();
+  updateCharts();
+}
+
+// =============================================
+// KPI
+// =============================================
+function renderKpiList(filtered = KPI_CATALOG) {
+  const list = document.getElementById('kpiList');
+  const countEl = document.querySelector('.kpi-count');
+  if (countEl) {
+    countEl.innerHTML = `แสดงผล <span>${filtered.length}</span> จาก <span>${KPI_CATALOG.length}</span> ตัวชี้วัด`;
+  }
+
+  list.innerHTML = filtered.map(k => `
+    <div class="kpi-item ${state.selectedKpi?.code === k.code ? 'active' : ''}"
+         onclick="selectKpi('${k.code}')">
+      <div class="kpi-item-name">${k.name}</div>
+      <div class="kpi-item-meta">
+        <span class="kpi-tag cat">${k.cat}</span>
+        <span class="kpi-tag">${k.code}</span>
+        <span class="kpi-tag" style="color:#059669;background:#dcfce7">${k.target}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterKpis() {
+  const q = document.getElementById('kpiSearch').value.toLowerCase();
+  const filtered = KPI_CATALOG.filter(k =>
+    k.name.toLowerCase().includes(q) ||
+    k.cat.toLowerCase().includes(q) ||
+    k.code.toLowerCase().includes(q)
+  );
+  renderKpiList(filtered);
+}
+
+function selectKpi(code) {
+  state.selectedKpi = KPI_CATALOG.find(k => k.code === code) || null;
+  renderKpiList();
+  const panel = document.getElementById('kpiDetailPanel');
+  if (state.selectedKpi) {
+    panel.style.display = 'block';
+    document.getElementById('kpiDetailTitle').textContent = state.selectedKpi.name;
+    document.getElementById('kpiDetailCat').textContent = state.selectedKpi.cat;
+    document.getElementById('kpiDetailCode').textContent = state.selectedKpi.code;
+    document.getElementById('kpiDetailTarget').textContent = state.selectedKpi.target;
+    document.getElementById('breadcrumbKpi').textContent = state.selectedKpi.code;
+    fetchKpiData(state.selectedKpi);
+  } else {
+    panel.style.display = 'none';
+    document.getElementById('breadcrumbKpi').textContent = 'ทุกตัวชี้วัด';
+  }
+}
+
+// =============================================
+// FETCH KPI DATA (mock API call)
+// =============================================
+async function fetchKpiData(kpi) {
+  showLoading(`กำลังดึงข้อมูล ${kpi.code}...`);
+  addFetchLog(`[${nowStr()}] ดึงข้อมูล ${kpi.code} — ${kpi.name.substring(0,30)}...`);
+  await sleep(600);
+  hideLoading();
+  updateCharts(kpi);
+  renderHospitalTable(kpi);
+  showToast(`โหลด ${kpi.code} เรียบร้อย ✓`, 'success');
+}
+
+// =============================================
+// CHARTS (Light Mode Styles)
+// =============================================
+function initCharts() {
+  Chart.defaults.font.family = "'Sarabun', 'Prompt', sans-serif";
+  Chart.defaults.color = '#475569';
+  Chart.defaults.font.size = 12.5;
+
+  // Bar chart
+  const barCtx = document.getElementById('districtBarChart').getContext('2d');
+  barChart = new Chart(barCtx, {
+    type: 'bar',
+    data: getBarChartData(),
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#0f172a',
+          titleFont: { size: 13, weight: 'bold' },
+          bodyFont: { size: 13 },
+          padding: 10,
+          cornerRadius: 8,
+          callbacks: { label: ctx => ` ผลงาน: ${ctx.parsed.y}%` }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100,
+          grid: { color: '#f1f5f9' },
+          ticks: {
+            callback: v => v + '%',
+            font: { size: 12, weight: '500' },
+            color: '#64748b'
+          }
+        },
+        x: {
+          grid: { display: false },
+          ticks: {
+            font: { size: 12.5, weight: '600' },
+            color: '#334155'
+          }
+        }
+      }
+    }
+  });
+
+  // Donut chart
+  const donutCtx = document.getElementById('donutChart').getContext('2d');
+  donutChart = new Chart(donutCtx, {
+    type: 'doughnut',
+    data: getDonutData(),
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '66%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            font: { size: 12.5, weight: '500' },
+            padding: 14,
+            color: '#334155',
+            usePointStyle: true,
+            pointStyle: 'circle'
+          }
+        },
+        tooltip: {
+          backgroundColor: '#0f172a',
+          titleFont: { size: 13 },
+          bodyFont: { size: 13 },
+          padding: 10,
+          cornerRadius: 8,
+          callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed}%` }
+        }
+      }
+    }
+  });
+}
+
+function getBarChartData(kpi) {
+  const districts = getAllDistricts();
+  const labels = districts.map(d => d.name.replace('อำเภอ',''));
+  const data = districts.map(() => Math.floor(Math.random() * 35 + 55));
+  const colors = data.map(v => v >= 75 ? '#10b981' : v >= 60 ? '#0284c7' : v >= 40 ? '#f59e0b' : '#ef4444');
+  return {
+    labels,
+    datasets: [{
+      data,
+      backgroundColor: colors,
+      borderRadius: 6,
+      borderSkipped: false,
+      maxBarThickness: 40
+    }]
+  };
+}
+
+function getDonutData() {
+  return {
+    labels: ['ผ่านเกณฑ์ (>=75%)', 'ใกล้เกณฑ์ (50-74%)', 'ต้องพัฒนา (<50%)'],
+    datasets: [{
+      data: [68, 20, 12],
+      backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+      borderColor: '#ffffff',
+      borderWidth: 3,
+      hoverOffset: 4
+    }]
+  };
+}
+
+function updateCharts(kpi) {
+  if (barChart) { barChart.data = getBarChartData(kpi); barChart.update(); }
+  if (donutChart) { donutChart.data = getDonutData(); donutChart.update(); }
+}
+
+// =============================================
+// HOSPITAL TABLE
+// =============================================
+function renderHospitalTable(kpi) {
+  const tbody = document.getElementById('hospitalTableBody');
+  let hospitals = state.selectedDistrict
+    ? getHospitalsByDistrict(state.selectedDistrict)
+    : Object.entries(HOSPITALS_DB).map(([code, h]) => ({ code, ...h }));
+
+  if (state.tableFilter !== 'all') {
+    if (state.tableFilter === 'รพศ./รพท.' || state.tableFilter === 'รพท.' || state.tableFilter === 'รพศ.') {
+      hospitals = hospitals.filter(h => h.type === 'รพศ.' || h.type === 'รพท.');
+    } else {
+      hospitals = hospitals.filter(h => h.type === state.tableFilter);
+    }
+  }
+
+  if (hospitals.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="empty-state-icon">🔍</div><div class="empty-state-text">ไม่พบข้อมูลหน่วยบริการในหมวดหมู่นี้</div></div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = hospitals.map(h => {
+    const numerator = Math.floor(Math.random() * 800 + 100);
+    const denominator = Math.floor(Math.random() * 200 + numerator);
+    const pct = Math.round(numerator / denominator * 100);
+    const color = pct >= 75 ? '#10b981' : pct >= 60 ? '#0284c7' : pct >= 40 ? '#f59e0b' : '#ef4444';
+    const typeClass = h.type === 'รพศ.' ? 'รพศ' :
+                      h.type === 'รพท.' ? 'รพท' :
+                      h.type === 'รพช.' ? 'รพช' :
+                      h.type === 'รพ.สต.' ? 'รพสต' :
+                      (h.type === 'ศบส.' || h.type === 'ศสม.') ? 'ศบส' : 'สสอ';
+    return `
+      <tr>
+        <td class="td-name">${h.name}</td>
+        <td style="font-family:var(--mono);font-size:12px;font-weight:600;color:var(--text3)">${h.code}</td>
+        <td><span class="type-badge ${typeClass}">${h.type}</span></td>
+        <td style="font-size:13.5px;font-weight:500">${getDistrictName(h.district)}</td>
+        <td>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar">
+              <div class="progress-fill" style="width:${pct}%;background:${color}"></div>
+            </div>
+          </div>
+          <div style="font-size:11.5px;font-family:var(--mono);color:var(--text3);margin-top:3px">${numerator} / ${denominator}</div>
+        </td>
+        <td class="progress-pct" style="color:${color}">${pct}%</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function filterTable(type, btn) {
+  state.tableFilter = type;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderHospitalTable(state.selectedKpi);
+}
+
+// =============================================
+// API STATUS
+// =============================================
+const API_ENDPOINTS = [
+  { name: 'MOPH Indicator API', url: 'hdcservice.moph.go.th', status: 'ok', lastCheck: '2 นาทีที่แล้ว' },
+  { name: 'HDC Province API (25)', url: 'hdc.moph.go.th/province/25', status: 'ok', lastCheck: '2 นาทีที่แล้ว' },
+  { name: 'KPI Catalog API', url: 'hdcservice.moph.go.th/kpi', status: 'ok', lastCheck: '5 นาทีที่แล้ว' },
+  { name: 'Hospital List API', url: 'hcode.moph.go.th', status: 'warn', lastCheck: '10 นาทีที่แล้ว' },
+  { name: 'District Stats API', url: 'hdc.moph.go.th/area/2501', status: 'ok', lastCheck: '2 นาทีที่แล้ว' },
+  { name: 'Auth Token Service', url: 'openid.moph.go.th', status: 'ok', lastCheck: '1 นาทีที่แล้ว' },
+];
+
+function renderApiStatus() {
+  // Sidebar
+  const list = document.getElementById('apiStatusList');
+  list.innerHTML = API_ENDPOINTS.map(a => `
+    <div class="api-status-card">
+      <div class="api-status-dot ${a.status}"></div>
+      <div class="api-status-info">
+        <div class="api-status-name">${a.name}</div>
+        <div class="api-status-time">${a.url} · ${a.lastCheck}</div>
+      </div>
+    </div>
+  `).join('');
+
+  // Grid (shown in content when api tab active)
+  const grid = document.getElementById('apiStatusGrid');
+  grid.innerHTML = API_ENDPOINTS.map(a => `
+    <div class="api-status-card">
+      <div class="api-status-dot ${a.status}"></div>
+      <div class="api-status-info">
+        <div class="api-status-name">${a.name}</div>
+        <div class="api-status-time">${a.url} · ${a.lastCheck}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addFetchLog(msg) {
+  const log = document.getElementById('fetchLog');
+  if (log) {
+    state.fetchHistory.unshift(msg);
+    if (state.fetchHistory.length > 20) state.fetchHistory.pop();
+    log.innerHTML = state.fetchHistory.map(m => `<div>${m}</div>`).join('');
+  }
+}
+
+// =============================================
+// STATS
+// =============================================
+function updateStats() {
+  const pct = Math.floor(Math.random() * 15 + 72);
+  document.getElementById('statPassRate').textContent = pct + '%';
+  document.getElementById('statPassSub').textContent = `ประมวลผลล่าสุด ${nowStr()}`;
+  document.getElementById('statUpdated').textContent = `อัปเดตเมื่อ ${nowStr()}`;
+
+  const hospCount = state.selectedDistrict
+    ? getHospitalsByDistrict(state.selectedDistrict).length
+    : Object.keys(HOSPITALS_DB).length;
+  document.getElementById('statHospCount').textContent = hospCount;
+}
+
+function refreshAllData() {
+  updateStats();
+  updateCharts();
+  renderHospitalTable(state.selectedKpi);
+  addFetchLog(`[${nowStr()}] Force refresh ปีงบ ${state.selectedYear}`);
+}
+
+// =============================================
+// SILENT AUTO-REFRESH
+// =============================================
+function startSilentRefresh() {
+  setInterval(() => {
+    updateStats();
+    addFetchLog(`[${nowStr()}] ตรวจสอบการเชื่อมต่ออัตโนมัติ (Auto-refresh)`);
+    document.getElementById('statusText').textContent = `อัปเดต ${nowStr()}`;
+  }, 60000);
+}
+
+// =============================================
+// HELPERS
+// =============================================
+function showLoading(text = '') {
+  document.getElementById('loadingText').textContent = text;
+  document.getElementById('loadingOverlay').classList.add('show');
+}
+
+function hideLoading() {
+  document.getElementById('loadingOverlay').classList.remove('show');
+}
+
+function showToast(msg, type = '') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  const icon = type === 'success' 
+    ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>'
+    : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+  toast.innerHTML = `${icon}<span>${msg}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+function nowStr() {
+  return new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+}
+
+function sleep(ms) {
+  return new Promise(r => setTimeout(r, ms));
+}
+</script>
+</body>
+</html>
