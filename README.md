@@ -3,7 +3,7 @@
 แดชบอร์ดรายงานข้อมูลสาธารณสุข จังหวัดปราจีนบุรี  
 ระบบแสดงผลตัวชี้วัดด้านสุขภาพเชื่อมโยง MOPH Open Data API
 
-**Live Demo:** `https://<your-username>.github.io/prachin_hdc/`
+**Live Demo:** `https://k2003.github.io/prachin_hdc/`
 
 ---
 
@@ -39,7 +39,7 @@ git push -u origin main
 3. Branch: **main** / folder: **/ (root)**
 4. กด **Save**
 
-เว็บจะขึ้นที่ `https://<username>.github.io/prachin_hdc/` ภายใน 2-3 นาที
+เว็บจะขึ้นที่ `https://k2003.github.io/prachin_hdc/` ภายใน 2-3 นาที
 
 ---
 
@@ -84,5 +84,4 @@ API_CONFIG.provinceCode = '25'; // ปราจีนบุรี
 
 ## 📞 ติดต่อ
 
-สำนักงานสาธารณสุขจังหวัดปราจีนบุรี  
-เขตสุขภาพที่ 6
+สำนักงานสาธารณสุขจังหวัดปราจีนบุรี  เขตสุขภาพที่ 6
